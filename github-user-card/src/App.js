@@ -2,69 +2,61 @@ import React from 'react';
 import axios from 'axios';
 import './App.css';
 
-import CardMaker from './component/CardMaker.js';
-
+import MyCard from './component/MyCard.js';
+import CardList from './component/CardList.js';
 
 class App extends React.Component {
 
   state = {
-    mainUser: 'MaryamMosstoufi',
+    user: [],
+    mainUser: 'Dudeicle',
     followersUrl: '',
     followers: []
   };
 
   componentDidMount() {
-    console.log(this.mainUser)
-    axios
-      .get(`https://api.github.com/users/${this.mainUser}`)
+
+    console.log(this.state.mainUser)
+
+    axios.get(`https://api.github.com/users/${this.state.mainUser}`)
+
       .then(res => {
-        console.log('Main User API Call', res)
-        //console.log(res.data.followers_url)
         this.setState({
+          user: res.data,
           followersUrl: res.data.followers_url
         }); 
-        axios
-          .get(this.state.followersUrl)
-          .then(res => {
-            console.log('Followers URL API Call', res)
-            this.setState({
-              followers: res.data
-            });
+        console.log(this.state.user)
+          axios.get(this.state.followersUrl)
+            .then(res => {
+              this.setState({
+                followers: res.data
+              });
+            })
+            .catch(error => {
+              console.log("Get Followers Error:", error);
+            })
           })
-          .catch(error => {
-            console.log("Get Followers Error:", error);
-          })
-      })
+
       .catch(error => {
         console.log("Get Followers URL Error:", error);
       })
+
     console.log('component did mount')
   }
 
-  // getFollowers() {
-  //   axios
-  //     .get(`https://api.github.com/users/MaryamMosstoufi/followers`)
-  //     .then(res => {
-  //       console.log('Followers URL API Call', res.data)
-  //       this.setState({
-  //         followers: res.data
-  //       });
-  //     })
-  //     .catch(error => {
-  //       console.log('Followers List Error', error)
-  //     })
-  // };
-
-
-
   render() {
     return (
+
     <div className="App">
-      <h1>React Github User Card</h1>
+        <h1>Brian's Github Card and Follower's Cards</h1>
         <div>
-            {/* {this.state.followersUrl.map(follower => (
-              <CardMaker key={follower.id} follower={follower} />
-            ))} */}
+            <MyCard user={this.state.user}/>
+        </div>
+
+        <div>
+            {this.state.followers.map(follower => (
+              <CardList key={follower.id} photo={follower.avatar_url} username={follower.login} link={follower.html_url} />
+            ))}
         </div>
     </div>
   );
